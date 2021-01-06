@@ -30,7 +30,7 @@ palette = [
 #variables
 a = 0
 xax = 3
-speed = 0.7
+speed = 0.3#0.7
 framerate = 0.01
 # board
 height = 17
@@ -38,6 +38,7 @@ width = 10
 timestep = time.time()
 
 board = np.zeros((height, width), dtype="int")
+current = None
 
 
 
@@ -49,14 +50,16 @@ def update(key):    # key press handling
         raise urwid.ExitMainLoop()
     if key == "left":
         try:
-            if xax>0:
-                xax = xax-1
+            if xax>0: #check if in bounds
+                if not cletris_core.collision(board, cletris_core.move_left(current)): #check for collision
+                    xax = xax-1
         except:
             pass
     if key == "right":
         try:
-            if xax+piece.shape[1] < width:
-                xax = xax+1
+            if xax+piece.shape[1] < width: #check if in bounds
+                if not cletris_core.collision(board, cletris_core.move_right(current)):
+                    xax = xax+1
         except:
             pass
     if key in ("w", "W"):
@@ -88,6 +91,7 @@ def refresh(_loop, _data):
     global xax
     global timestep
     global piece
+    global current
 
     try:
         if a<height:
