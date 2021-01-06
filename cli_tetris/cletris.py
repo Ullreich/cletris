@@ -20,12 +20,17 @@ list_of_pieces = [cletris_core.i_bar(),
                   cletris_core.s_bar(),
                   cletris_core.z_bar(),
                   cletris_core.t_bar()]
+
+# TODO: fix palette
 palette = [
-    ('banner', '', '', '', '#ffa', '#60d'),
-    ('streak', '', '', '', 'g50', '#60a'),
-    ('inside', '', '', '', 'g38', '#808'),
-    ('outside', '', '', '', 'g27', '#a06'),
-    ('bg', '', '', '', 'g7', '#d06')]
+    ('l_blue', '', '', '', '#0df', '#0df'),
+    ("white", "", "", "", "#000", "#fff"),
+    ("yellow", "", "", "", "#ff0", "#ff0"),
+    ("purple", "", "", "", "#808", "#808"),
+    ("green", "", "", "", "#0d0", "#0d0"),
+    ("red", "", "", "", "#f00", "#f00"),
+    ("blue", "", "", "", "#00f", "#00f"),
+    ("orange", "", "", "", "#f80", "#f80")]
 
 #variables
 a = 0
@@ -64,9 +69,16 @@ def update(key):    # key press handling
             pass
     if key in ("w", "W"):
         #TODO: improve l rotation
+        # fix collision on rotation
         try:
-            if (xax+piece.shape[0]<=width) and (a+piece.shape[1]<=height) :
-                piece = np.rot90(piece)
+            if (xax+piece.shape[0]-1 < width): #make sure rotation is legal
+
+                tmp_rot = np.zeros((height, width), dtype="int")
+                tmp_piece = np.rot90(piece)
+                tmp_rot[a:a+tmp_piece.shape[0], xax:xax+tmp_piece.shape[1]] = tmp_piece
+
+                if not cletris_core.collision(board, tmp_rot): #make sure not to rotate into a piece
+                    piece = np.rot90(piece)
         except:
             pass
 
@@ -99,12 +111,33 @@ def refresh(_loop, _data):
 
             current[a:a+piece.shape[0], xax:xax+piece.shape[1]] = piece
 
-            draw = str(board+current)
-            draw = draw.replace("[", "")
-            draw = draw.replace("]", "")
-            #draw = draw.replace("0", " ")
+            # add color:
+            tmp = board + current
+            colored_array = []
 
-            txt.set_text(f"{draw}")
+            for idx, i in np.ndenumerate(tmp):
+                if i == 1:
+                    colored_array.append(("l_blue", f" {i}"))
+                elif i == 2:
+                    colored_array.append(("purple", f" {i}"))
+                elif i == 3:
+                    colored_array.append(("yellow", f" {i}"))
+                elif i == 4:
+                    colored_array.append(("blue", f" {i}"))
+                elif i == 5:
+                    colored_array.append(("orange", f" {i}"))
+                elif i == 6:
+                    colored_array.append(("red", f" {i}"))
+                elif i == 7:
+                    colored_array.append(("green", f" {i}"))
+                else:
+                    colored_array.append(("white", f" {i}"))
+
+                if idx[1] == width-1:
+                    colored_array.append(f"\n")
+
+
+            txt.set_text(colored_array)
 
             # increment y axis
             if time.time()-timestep>speed:
@@ -122,13 +155,9 @@ def refresh(_loop, _data):
                 timestep = time.time()
     except:
         pass
-        #txt.set_text(f"{piece.shape[0]}")
-        #raise urwid.ExitMainLoop()
-        #txt.set_text(f"{a}")
     # run again in 0.5 seconds
     _loop.set_alarm_in(framerate, refresh)
 
-#TODO: don't bind speed to framrate
 loop.set_alarm_in(framerate, refresh)
 
 loop.run()
