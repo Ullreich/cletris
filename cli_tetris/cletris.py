@@ -6,10 +6,13 @@ import random
 
 #TODO
 """
-*) write a parser that colors based on number
-*) rewrite the tetrominos to have individual numbers
-*) rewrite the collisionfunction:
-    a collision occurs when max(board + current) != max(board + next)
+implement line delete
+implement topout
+implement pause
+implement speed drop
+improve rotation
+research boxes/widgets
+clean up code
 """
 
 #list of pieces
@@ -36,8 +39,7 @@ palette = [
 a = 0
 xax = 3
 speed = 0.3#0.7
-framerate = 0.01
-# board
+framerate = 0.001
 height = 17
 width = 10
 timestep = time.time()
