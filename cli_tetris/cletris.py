@@ -6,13 +6,27 @@ import random
 
 #TODO
 """
-implement line delete
-implement topout
-implement pause
-implement speed drop
-improve rotation
-research boxes/widgets
+implement line delete   [x]
+implement topout        [x]
+implement pause         [ ]
+implement speed drop    [ ]
+improve rotation        [ ]
+research boxes          [ ]
+add nice kill screen    [ ]
+    and reset option
+implement preview       [ ]
+implement score         [ ]
+implement line count    [ ]
+    and speed up
+implement high score    [ ]
+    table
+
 clean up code
+    4 important parts
+        1) timing
+        2) input
+        3) game logic
+        4) screen
 """
 
 #list of pieces
@@ -108,57 +122,69 @@ def refresh(_loop, _data):
     global current
 
     try:
-        if a<height:
-            current = np.zeros((height, width), dtype="int")
+        #check for cleared lines
+        board = cletris_core.clear_line(board)
 
-            current[a:a+piece.shape[0], xax:xax+piece.shape[1]] = piece
+        current = np.zeros((height, width), dtype="int")
 
-            # add color:
-            tmp = board + current
-            colored_array = []
+        current[a:a+piece.shape[0], xax:xax+piece.shape[1]] = piece
 
-            for idx, i in np.ndenumerate(tmp):
-                if i == 1:
-                    colored_array.append(("l_blue", f" {i}"))
-                elif i == 2:
-                    colored_array.append(("purple", f" {i}"))
-                elif i == 3:
-                    colored_array.append(("yellow", f" {i}"))
-                elif i == 4:
-                    colored_array.append(("blue", f" {i}"))
-                elif i == 5:
-                    colored_array.append(("orange", f" {i}"))
-                elif i == 6:
-                    colored_array.append(("red", f" {i}"))
-                elif i == 7:
-                    colored_array.append(("green", f" {i}"))
-                else:
-                    colored_array.append(("white", f" {i}"))
+        #check for collision:
+        if cletris_core.collision(board, current):
+            end_game = True
+        else:
+            end_game = False
 
-                if idx[1] == width-1:
-                    colored_array.append(f"\n")
+        # add color:
+        tmp = board + current
+        colored_array = []
+
+        for idx, i in np.ndenumerate(tmp):
+            if i == 1:
+                colored_array.append(("l_blue", f" {i}"))
+            elif i == 2:
+                colored_array.append(("purple", f" {i}"))
+            elif i == 3:
+                colored_array.append(("yellow", f" {i}"))
+            elif i == 4:
+                colored_array.append(("blue", f" {i}"))
+            elif i == 5:
+                colored_array.append(("orange", f" {i}"))
+            elif i == 6:
+                colored_array.append(("red", f" {i}"))
+            elif i == 7:
+                colored_array.append(("green", f" {i}"))
+            else:
+                colored_array.append(("white", f" {i}"))
+
+            if idx[1] == width-1:
+                colored_array.append(f"\n")
 
 
-            txt.set_text(colored_array)
+        txt.set_text(colored_array)
 
-            # increment y axis
-            if time.time()-timestep>speed:
+        # increment y axis
+        if time.time()-timestep>speed:
 
-                #check if reached bottom or collision
-                if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)):
-                    board = board + current # add piece to background
-                    piece = random.choice(list_of_pieces) #spawn a new piece
-                    piece = piece.arr
-                    xax = 3 # reset variables
-                    a = 0
-                else:
-                    a = a+1
+            #check if reached bottom or collision
+            if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)):
+                board = board + current # add piece to background
 
-                timestep = time.time()
+                piece = random.choice(list_of_pieces) #spawn a new piece
+                piece = piece.arr
+                xax = 3 # reset variables
+                a = 0
+            else:
+                a = a+1
+
+            timestep = time.time()
     except:
         pass
     # run again in 0.5 seconds
-    _loop.set_alarm_in(framerate, refresh)
+    if end_game == False:
+        _loop.set_alarm_in(framerate, refresh)
+    else:
+        txt.set_text(f"game over\n:(")
 
 loop.set_alarm_in(framerate, refresh)
 

@@ -23,6 +23,13 @@ def collision(board, draw):
             return True
     return False
 
+def clear_line(r):
+    for i in range(r.shape[0]):
+        if 0 not in r[i]:
+            r = (np.concatenate((np.zeros((1, r.shape[1])), r[:i], r[i+1:])))
+    r = r.astype("int")
+    return r
+
 
 def move_down(arr):
     return np.concatenate(([arr[-1, :]], arr[:-1, :]))
