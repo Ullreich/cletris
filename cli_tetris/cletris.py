@@ -20,6 +20,10 @@ implement line count    [ ]
     and speed up
 implement high score    [ ]
     table
+add music?              [ ]
+pretty line deletion    [ ]
+clean up global with    [ ]
+    classes?
 
 clean up code
     4 important parts
@@ -42,6 +46,7 @@ list_of_pieces = [cletris_core.i_bar(),
 palette = [
     ('l_blue', '', '', '', '#0df', '#0df'),
     ("white", "", "", "", "#000", "#fff"),
+    ("black", "", "", "", "#000", "#000"),
     ("yellow", "", "", "", "#ff0", "#ff0"),
     ("purple", "", "", "", "#808", "#808"),
     ("green", "", "", "", "#0d0", "#0d0"),
@@ -51,12 +56,14 @@ palette = [
 
 #variables
 a = 0
-xax = 3
-speed = 0.3#0.7
+xax = 4
+speed = 0.12#0.7
 framerate = 0.001
 height = 17
 width = 10
 timestep = time.time()
+score = 0
+lines = 0
 
 board = np.zeros((height, width), dtype="int")
 current = None
@@ -120,67 +127,49 @@ def refresh(_loop, _data):
     global timestep
     global piece
     global current
+    global score
+    global lines
+    current_score = 0
 
-    try:
-        #check for cleared lines
-        board = cletris_core.clear_line(board)
+    board, how_many = cletris_core.clear_line(board)
+    if how_many != 0:
+        time.sleep(speed*2)
+    score = score + (how_many**2)*100
+    lines = lines+how_many
 
-        current = np.zeros((height, width), dtype="int")
+    #draw piece
+    current = np.zeros((height, width), dtype="int")
+    current[a:a+piece.shape[0], xax:xax+piece.shape[1]] = piece
 
-        current[a:a+piece.shape[0], xax:xax+piece.shape[1]] = piece
+    #check for collision:
+    if cletris_core.collision(board, current):
+        end_game = True
+    else:
+        end_game = False
 
-        #check for collision:
-        if cletris_core.collision(board, current):
-            end_game = True
+    # add color:
+    tmp = board + current
+
+    colored_array = cletris_core.color_board(tmp, width, True)
+    txt.set_text(colored_array)
+
+    # increment y axis
+    if time.time()-timestep>speed:
+
+        #check if reached bottom or collision
+        if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)):
+            board = board + current # add piece to background
+
+            piece = random.choice(list_of_pieces) #spawn a new piece
+            piece = piece.arr
+            xax = 4 # reset variables
+            a = 0
         else:
-            end_game = False
+            a = a+1
 
-        # add color:
-        tmp = board + current
-        colored_array = []
+        timestep = time.time()
 
-        for idx, i in np.ndenumerate(tmp):
-            if i == 1:
-                colored_array.append(("l_blue", f" {i}"))
-            elif i == 2:
-                colored_array.append(("purple", f" {i}"))
-            elif i == 3:
-                colored_array.append(("yellow", f" {i}"))
-            elif i == 4:
-                colored_array.append(("blue", f" {i}"))
-            elif i == 5:
-                colored_array.append(("orange", f" {i}"))
-            elif i == 6:
-                colored_array.append(("red", f" {i}"))
-            elif i == 7:
-                colored_array.append(("green", f" {i}"))
-            else:
-                colored_array.append(("white", f" {i}"))
-
-            if idx[1] == width-1:
-                colored_array.append(f"\n")
-
-
-        txt.set_text(colored_array)
-
-        # increment y axis
-        if time.time()-timestep>speed:
-
-            #check if reached bottom or collision
-            if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)):
-                board = board + current # add piece to background
-
-                piece = random.choice(list_of_pieces) #spawn a new piece
-                piece = piece.arr
-                xax = 3 # reset variables
-                a = 0
-            else:
-                a = a+1
-
-            timestep = time.time()
-    except:
-        pass
-    # run again in 0.5 seconds
+    # run again in framerate
     if end_game == False:
         _loop.set_alarm_in(framerate, refresh)
     else:

@@ -24,11 +24,48 @@ def collision(board, draw):
     return False
 
 def clear_line(r):
+    how_many = 0
     for i in range(r.shape[0]):
         if 0 not in r[i]:
             r = (np.concatenate((np.zeros((1, r.shape[1])), r[:i], r[i+1:])))
+            how_many = how_many+1
     r = r.astype("int")
-    return r
+    return r, how_many
+
+def color_board(tmp, width, color_black = False):
+    colored_array = list()
+    sleep = False
+    #check for full lines
+    if color_black:
+        for i, j in zip(tmp, range(tmp.shape[0])):
+            if 0 not in i:
+                tmp[j] = [9 for k in range(tmp.shape[1])]
+
+    #color array
+    for idx, i in np.ndenumerate(tmp):
+        if i == 1:
+            colored_array.append(("l_blue", f" {i}"))
+        elif i == 2:
+            colored_array.append(("purple", f" {i}"))
+        elif i == 3:
+            colored_array.append(("yellow", f" {i}"))
+        elif i == 4:
+            colored_array.append(("blue", f" {i}"))
+        elif i == 5:
+            colored_array.append(("orange", f" {i}"))
+        elif i == 6:
+            colored_array.append(("red", f" {i}"))
+        elif i == 7:
+            colored_array.append(("green", f" {i}"))
+        elif i == 9:
+            colored_array.append(("black", f" {i}"))
+        else:
+            colored_array.append(("white", f" {i}"))
+
+        if idx[1] == width-1:
+            colored_array.append(f"\n")
+
+    return colored_array
 
 
 def move_down(arr):
