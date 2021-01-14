@@ -8,15 +8,15 @@ import random
 """
 implement line delete   [x]
 implement topout        [x]
-implement pause         [ ]
+implement pause         [x]
 implement speed drop    [ ]
 improve rotation        [ ]
-research boxes          [ ]
+research boxes          [x]
 add nice kill screen    [ ]
     and reset option
-implement preview       [ ]
-implement score         [~]
-implement line count    [~]
+implement preview       [x]
+implement score         [x]
+implement line count    [x]
     and speed up
 implement high score    [ ]
     table
@@ -70,6 +70,7 @@ score = 0
 lines = 0
 next_piece = random.choice(list_of_pieces).arr
 piece = random.choice(list_of_pieces).arr
+pause_flag = False
 
 board = np.zeros((height, width), dtype="int")
 current = None
@@ -78,37 +79,32 @@ current = None
 def update(key):    # key press handling
     global xax
     global piece
+    global pause_flag
+    global loop
 
     if key in ("q", "Q"):
         raise urwid.ExitMainLoop()
     if key == "left":
-        try:
-            if xax>0: #check if in bounds
-                if not cletris_core.collision(board, cletris_core.move_left(current)): #check for collision
-                    xax = xax-1
-        except:
-            pass
+        if xax>0: #check if in bounds
+            if not cletris_core.collision(board, cletris_core.move_left(current)): #check for collision
+                xax = xax-1
     if key == "right":
-        try:
-            if xax+piece.shape[1] < width: #check if in bounds
-                if not cletris_core.collision(board, cletris_core.move_right(current)):
-                    xax = xax+1
-        except:
-            pass
-    if key in ("w", "W"):
+        if xax+piece.shape[1] < width: #check if in bounds
+            if not cletris_core.collision(board, cletris_core.move_right(current)):
+                xax = xax+1
+    if key in ("r", "R"):
         #TODO: improve l rotation
-        # fix collision on rotation
-        try:
-            if (xax+piece.shape[0]-1 < width): #make sure rotation is legal
+        if (xax+piece.shape[0]-1 < width): #make sure rotation is legal
 
-                tmp_rot = np.zeros((height, width), dtype="int")
-                tmp_piece = np.rot90(piece)
-                tmp_rot[a:a+tmp_piece.shape[0], xax:xax+tmp_piece.shape[1]] = tmp_piece
+            tmp_rot = np.zeros((height, width), dtype="int")
+            tmp_piece = np.rot90(piece)
+            tmp_rot[a:a+tmp_piece.shape[0], xax:xax+tmp_piece.shape[1]] = tmp_piece
 
-                if not cletris_core.collision(board, tmp_rot): #make sure not to rotate into a piece
-                    piece = np.rot90(piece)
-        except:
-            pass
+            if not cletris_core.collision(board, tmp_rot): #make sure not to rotate into a piece
+                piece = np.rot90(piece)
+    if key in ("p", "P"):
+        pause_flag = not pause_flag
+
 #--------
 #ui stuff
 #--------
@@ -146,69 +142,75 @@ def refresh(_loop, _data):
     global speed
     current_score = 0
 
-    #draw the next piece
-    filler = np.zeros((4, 4))
-    filler[0:next_piece.shape[0], 0:next_piece.shape[1]] = next_piece
-    filler = filler.astype("int")
-    filler = cletris_core.color_board(filler, 4)
-    txt_next_piece.set_text(filler)
-
-    #clear lines, increment score and line number, sleep on cleared line
-    board, how_many = cletris_core.clear_line(board)
-    if how_many != 0:
-        time.sleep(speed*2)
-        if lines%20 == 0 and lines != 0:
-            level = level + 1
-            speed = speed* 2/3
-        score = score + (how_many**2)*100*level
-        lines = lines+how_many
-
-    txt_meta.set_text(f"Score:\n{score}\nLines:\n{lines}\nLevel:\n{level}")
-
-    #draw piece
-    current = np.zeros((height, width), dtype="int")
-    current[a:a+piece.shape[0], xax:xax+piece.shape[1]] = piece
-
-    #check for collision:
-    if cletris_core.collision(board, current):
-        end_game = True
-    else:
-        end_game = False
-
-    # add color:
-    tmp = board + current
-    if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)): #only color line black before new piece
-        colored_array = cletris_core.color_board(tmp, width, True)
-    else:
-        colored_array = cletris_core.color_board(tmp, width)
-    txt.set_text(colored_array)
-
-    # increment y axis
-    if time.time()-timestep>speed:
-
-        #check if reached bottom or collision
-        if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)):
-            board = board + current # add piece to background
-
-            #increment piece
-            piece = next_piece
-
-            #pick next piece
-            next_piece = random.choice(list_of_pieces).arr #spawn a new piece
-
-            # reset variables
-            xax = 4
-            a = 0
-        else:
-            a = a+1
-
-        timestep = time.time()
-
-    # run again in framerate
-    if end_game == False:
+    #check if game is paused
+    if pause_flag == True:
+        time.sleep(0.01)
         _loop.set_alarm_in(framerate, refresh)
+
     else:
-        txt.set_text(f"game over\n:(")
+        #draw the next piece
+        filler = np.zeros((4, 4))
+        filler[0:next_piece.shape[0], 0:next_piece.shape[1]] = next_piece
+        filler = filler.astype("int")
+        filler = cletris_core.color_board(filler, 4)
+        txt_next_piece.set_text(([f"Next Piece:\n", filler]))
+
+        #clear lines, increment score and line number, sleep on cleared line
+        board, how_many = cletris_core.clear_line(board)
+        if how_many != 0:
+            time.sleep(speed*2)
+            if lines%20 == 0 and lines != 0:
+                level = level + 1
+                speed = speed* 2/3
+            score = score + (how_many**2)*100*level
+            lines = lines+how_many
+
+        txt_meta.set_text(f"Score:\n{score}\nLines:\n{lines}\nLevel:\n{level}")
+
+        #draw piece
+        current = np.zeros((height, width), dtype="int")
+        current[a:a+piece.shape[0], xax:xax+piece.shape[1]] = piece
+
+        #check for collision:
+        if cletris_core.collision(board, current):
+            end_game = True
+        else:
+            end_game = False
+
+        # add color:
+        tmp = board + current
+        if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)): #only color line black before new piece
+            colored_array = cletris_core.color_board(tmp, width, True)
+        else:
+            colored_array = cletris_core.color_board(tmp, width)
+        txt.set_text(colored_array)
+
+        # increment y axis
+        if time.time()-timestep>speed:
+
+            #check if reached bottom or collision
+            if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)):
+                board = board + current # add piece to background
+
+                #increment piece
+                piece = next_piece
+
+                #pick next piece
+                next_piece = random.choice(list_of_pieces).arr #spawn a new piece
+
+                # reset variables
+                xax = 4
+                a = 0
+            else:
+                a = a+1
+
+            timestep = time.time()
+
+        # run again in framerate
+        if end_game == False:
+            _loop.set_alarm_in(framerate, refresh)
+        else:
+            txt.set_text(f"game over\n:(")
 
 loop.set_alarm_in(framerate, refresh)
 
