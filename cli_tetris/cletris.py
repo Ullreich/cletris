@@ -9,7 +9,7 @@ import random
 implement line delete   [x]
 implement topout        [x]
 implement pause         [x]
-implement speed drop    [ ]
+implement speed drop    [x]
 improve rotation        [ ]
 research boxes          [x]
 add nice kill screen    [ ]
@@ -71,6 +71,7 @@ lines = 0
 next_piece = random.choice(list_of_pieces).arr
 piece = random.choice(list_of_pieces).arr
 pause_flag = False
+down_speed = False
 
 board = np.zeros((height, width), dtype="int")
 current = None
@@ -80,7 +81,7 @@ def update(key):    # key press handling
     global xax
     global piece
     global pause_flag
-    global loop
+    global down_speed
 
     if key in ("q", "Q"):
         raise urwid.ExitMainLoop()
@@ -104,6 +105,8 @@ def update(key):    # key press handling
                 piece = np.rot90(piece)
     if key in ("p", "P"):
         pause_flag = not pause_flag
+    if key == "down":
+        down_speed = True
 
 #--------
 #ui stuff
@@ -140,6 +143,7 @@ def refresh(_loop, _data):
     global lines
     global level
     global speed
+    global down_speed
     current_score = 0
 
     #check if game is paused
@@ -159,7 +163,7 @@ def refresh(_loop, _data):
         board, how_many = cletris_core.clear_line(board)
         if how_many != 0:
             time.sleep(speed*2)
-            if lines%20 == 0 and lines != 0:
+            if lines >= 20*level:
                 level = level + 1
                 speed = speed* 2/3
             score = score + (how_many**2)*100*level
@@ -186,7 +190,12 @@ def refresh(_loop, _data):
         txt.set_text(colored_array)
 
         # increment y axis
-        if time.time()-timestep>speed:
+        if down_speed:
+            inc_speed = 0.01
+            down_speed = False
+        else:
+            inc_speed = speed
+        if time.time()-timestep>inc_speed:
 
             #check if reached bottom or collision
             if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)):
