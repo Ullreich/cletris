@@ -15,15 +15,16 @@ research boxes          [ ]
 add nice kill screen    [ ]
     and reset option
 implement preview       [ ]
-implement score         [ ]
-implement line count    [ ]
+implement score         [~]
+implement line count    [~]
     and speed up
 implement high score    [ ]
     table
 add music?              [ ]
-pretty line deletion    [ ]
+pretty line deletion    [x]
 clean up global with    [ ]
     classes?
+update Colors           [ ]
 
 clean up code
     4 important parts
@@ -52,22 +53,25 @@ palette = [
     ("green", "", "", "", "#0d0", "#0d0"),
     ("red", "", "", "", "#f00", "#f00"),
     ("blue", "", "", "", "#00f", "#00f"),
-    ("orange", "", "", "", "#f80", "#f80")]
+    ("orange", "", "", "", "#f80", "#f80"),
+    ("snow", "", "", "", "#AED", "#AED"),
+    ("lavender", "", "", "", "#ACC", "#ACC")]
 
 #variables
 a = 0
 xax = 4
-speed = 0.12#0.7
+speed = 0.2#0.7
 framerate = 0.001
 height = 17
 width = 10
 timestep = time.time()
 score = 0
 lines = 0
+next_piece = random.choice(list_of_pieces).arr
+piece = random.choice(list_of_pieces).arr
 
 board = np.zeros((height, width), dtype="int")
 current = None
-
 
 
 def update(key):    # key press handling
@@ -104,21 +108,28 @@ def update(key):    # key press handling
                     piece = np.rot90(piece)
         except:
             pass
-
+#--------
 #ui stuff
-str_array = str(board)
-str_array = str_array.replace("[", "")
-str_array = str_array.replace("]", "")
-#str_array = str_array.replace("0", " ")
-txt = urwid.Text((f"{str_array}"), align="center")
-fill = urwid.Filler(txt)
+#--------
+
+txt = urwid.Text((f"init"), align = "right") #main board
+
+txt_next_piece = urwid.Text((f"init"), align = "left")  # next piece display
+txt_next_padded = urwid.Padding(txt_next_piece, left = 4)
+
+txt_meta = urwid.Text((f"Score:\n{score}\nLines:\n{lines}"), align = "left")
+txt_meta_padded = urwid.Padding(txt_meta, left = 4)
+
+txt_next_piece_and_meta = urwid.Pile([txt_next_padded, txt_meta_padded])
+
+full_board = urwid.Columns([txt, txt_next_piece_and_meta])
+fill = urwid.Filler(full_board)
 loop = urwid.MainLoop(fill, palette, unhandled_input=update)
 loop.screen.set_terminal_properties(colors=256)
 
-# for testing purposes run a piece down
-
-piece = random.choice(list_of_pieces)
-piece = piece.arr
+#-------------------
+#refresh main screen
+#-------------------
 
 def refresh(_loop, _data):
     global board
@@ -126,16 +137,26 @@ def refresh(_loop, _data):
     global xax
     global timestep
     global piece
+    global next_piece
     global current
     global score
     global lines
     current_score = 0
 
+    #draw the next piece
+    filler = np.zeros((4, 4))
+    filler[0:next_piece.shape[0], 0:next_piece.shape[1]] = next_piece
+    filler = filler.astype("int")
+    filler = cletris_core.color_board(filler, 4)
+    txt_next_piece.set_text(filler)
+
+    #clear lines, increment score and line number, sleep on cleared line
     board, how_many = cletris_core.clear_line(board)
     if how_many != 0:
         time.sleep(speed*2)
     score = score + (how_many**2)*100
     lines = lines+how_many
+    txt_meta.set_text(f"Score:\n{score}\nLines:\n{lines}")
 
     #draw piece
     current = np.zeros((height, width), dtype="int")
@@ -149,8 +170,10 @@ def refresh(_loop, _data):
 
     # add color:
     tmp = board + current
-
-    colored_array = cletris_core.color_board(tmp, width, True)
+    if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)): #only color line black before new piece
+        colored_array = cletris_core.color_board(tmp, width, True)
+    else:
+        colored_array = cletris_core.color_board(tmp, width)
     txt.set_text(colored_array)
 
     # increment y axis
@@ -160,9 +183,14 @@ def refresh(_loop, _data):
         if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)):
             board = board + current # add piece to background
 
-            piece = random.choice(list_of_pieces) #spawn a new piece
-            piece = piece.arr
-            xax = 4 # reset variables
+            #increment piece
+            piece = next_piece
+
+            #pick next piece
+            next_piece = random.choice(list_of_pieces).arr #spawn a new piece
+
+            # reset variables
+            xax = 4
             a = 0
         else:
             a = a+1

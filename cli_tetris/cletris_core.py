@@ -8,15 +8,6 @@ board[0:height, 0] = 9
 board[0:height, width-1] = 9
 board[height-1, 0:width] = 9
 
-# print(board)
-
-"""
-def collision(board, draw):
-    if 2 in board + draw:
-        return True
-    return False
-"""
-
 def collision(board, draw):
     for idx, i in np.ndenumerate(draw):
         if (i != 0) and (board[idx] != 0):
@@ -59,8 +50,10 @@ def color_board(tmp, width, color_black = False):
             colored_array.append(("green", f" {i}"))
         elif i == 9:
             colored_array.append(("black", f" {i}"))
+        elif i == 0 and idx[1]%2==0:
+            colored_array.append(("lavender", f" {i}"))
         else:
-            colored_array.append(("white", f" {i}"))
+            colored_array.append(("snow", f" {i}"))
 
         if idx[1] == width-1:
             colored_array.append(f"\n")
