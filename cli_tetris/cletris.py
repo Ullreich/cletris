@@ -60,7 +60,8 @@ palette = [
 #variables
 a = 0
 xax = 4
-speed = 0.2#0.7
+speed = 0.5#0.7
+level = 1
 framerate = 0.001
 height = 17
 width = 10
@@ -117,7 +118,7 @@ txt = urwid.Text((f"init"), align = "right") #main board
 txt_next_piece = urwid.Text((f"init"), align = "left")  # next piece display
 txt_next_padded = urwid.Padding(txt_next_piece, left = 4)
 
-txt_meta = urwid.Text((f"Score:\n{score}\nLines:\n{lines}"), align = "left")
+txt_meta = urwid.Text((f"Score:\n{score}\nLines:\n{lines}\nLevel:\n{level}"), align = "left")
 txt_meta_padded = urwid.Padding(txt_meta, left = 4)
 
 txt_next_piece_and_meta = urwid.Pile([txt_next_padded, txt_meta_padded])
@@ -141,6 +142,8 @@ def refresh(_loop, _data):
     global current
     global score
     global lines
+    global level
+    global speed
     current_score = 0
 
     #draw the next piece
@@ -154,9 +157,13 @@ def refresh(_loop, _data):
     board, how_many = cletris_core.clear_line(board)
     if how_many != 0:
         time.sleep(speed*2)
-    score = score + (how_many**2)*100
-    lines = lines+how_many
-    txt_meta.set_text(f"Score:\n{score}\nLines:\n{lines}")
+        if lines%20 == 0 and lines != 0:
+            level = level + 1
+            speed = speed* 2/3
+        score = score + (how_many**2)*100*level
+        lines = lines+how_many
+
+    txt_meta.set_text(f"Score:\n{score}\nLines:\n{lines}\nLevel:\n{level}")
 
     #draw piece
     current = np.zeros((height, width), dtype="int")
