@@ -34,7 +34,7 @@ clean up code
         4) screen
 
 fix:
- when you rotate at the bottom the game crashes
+when you rotate at the bottom or too far left the game crashes
 """
 
 #list of pieces
@@ -89,11 +89,12 @@ def update(key):    # key press handling
     if key in ("q", "Q"):
         raise urwid.ExitMainLoop()
     if key == "left":
-        if xax>0: #check if in bounds
+        if xax+cletris_core.find_first_nonzero_left(piece)>0: #check if in bounds
             if not cletris_core.collision(board, cletris_core.move_left(current)): #check for collision
                 xax = xax-1
     if key == "right":
-        if xax+piece.shape[1] < width: #check if in bounds
+        if xax+cletris_core.find_first_nonzero_right(piece)+1<width:
+        #if xax+piece.shape[1] < width: #check if in bounds
             if not cletris_core.collision(board, cletris_core.move_right(current)):
                 xax = xax+1
     if key in ("r", "R"):
@@ -176,7 +177,10 @@ def refresh(_loop, _data):
 
         #draw piece
         current = np.zeros((height, width), dtype="int")
-        current[a:a+piece.shape[0], xax:xax+piece.shape[1]] = piece
+        #current[a:a+piece.shape[0], xax:xax+piece.shape[1]] = piece[cletris_core.find_first_nonzero_in_row(piece):]
+        for i, j in np.ndenumerate(piece):
+            if j != 0:
+                current[a+i[0], xax+i[1]] = j
 
         #check for collision:
         if cletris_core.collision(board, current):
@@ -201,7 +205,7 @@ def refresh(_loop, _data):
         if time.time()-timestep>inc_speed:
 
             #check if reached bottom or collision
-            if ((a+1)+piece.shape[0] > height) or cletris_core.collision(board, cletris_core.move_down(current)):
+            if ((a+1)+cletris_core.find_first_nonzero_down(piece)+1 > height) or cletris_core.collision(board, cletris_core.move_down(current)):
                 board = board + current # add piece to background
 
                 #increment piece
