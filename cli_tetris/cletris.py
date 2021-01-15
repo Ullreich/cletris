@@ -32,6 +32,9 @@ clean up code
         2) input
         3) game logic
         4) screen
+
+fix:
+ when you rotate at the bottom the game crashes
 """
 
 #list of pieces
