@@ -10,8 +10,11 @@ board[height-1, 0:width] = 9
 
 def collision(board, draw):
     for idx, i in np.ndenumerate(draw):
-        if (i != 0) and (board[idx] != 0):
-            return True
+        try:
+            if (i != 0) and (board[idx] != 0):
+                return True
+        except:
+            pass
     return False
 
 def clear_line(r):

@@ -99,14 +99,17 @@ def update(key):    # key press handling
                 xax = xax+1
     if key in ("r", "R"):
         #TODO: improve l rotation
-        if (xax+piece.shape[0]-1 < width): #make sure rotation is legal
+        if (xax+piece.shape[0]-1 < width): #make sure rotation is legal to the right
+            try: #this exception handles out of bound errors when you reach the bottom
+                tmp_rot = np.zeros((height, width), dtype="int")
+                tmp_piece = np.rot90(piece)
+                tmp_rot[a:a+tmp_piece.shape[0], xax:xax+tmp_piece.shape[1]] = tmp_piece
 
-            tmp_rot = np.zeros((height, width), dtype="int")
-            tmp_piece = np.rot90(piece)
-            tmp_rot[a:a+tmp_piece.shape[0], xax:xax+tmp_piece.shape[1]] = tmp_piece
-
-            if not cletris_core.collision(board, tmp_rot): #make sure not to rotate into a piece
-                piece = np.rot90(piece)
+                if (xax+cletris_core.find_first_nonzero_left(tmp_piece)>=0):
+                    if not cletris_core.collision(board, tmp_rot): #make sure not to rotate into a piece
+                        piece = np.rot90(piece)
+            except:
+                pass
     if key in ("p", "P"):
         pause_flag = not pause_flag
     if key == "down":
