@@ -62,7 +62,7 @@ palette = [
 
 #variables
 a = 0
-xax = 4
+xax = 3
 speed = 0.5#0.7
 level = 1
 framerate = 0.001
@@ -75,6 +75,7 @@ next_piece = random.choice(list_of_pieces).arr
 piece = random.choice(list_of_pieces).arr
 pause_flag = False
 down_speed = False
+quit = False
 
 board = np.zeros((height, width), dtype="int")
 current = None
@@ -85,8 +86,10 @@ def update(key):    # key press handling
     global piece
     global pause_flag
     global down_speed
+    global quit
 
     if key in ("q", "Q"):
+        quit = True
         raise urwid.ExitMainLoop()
     if key == "left":
         if xax+cletris_core.find_first_nonzero_left(piece)>0: #check if in bounds
@@ -133,6 +136,7 @@ full_board = urwid.Columns([txt, txt_next_piece_and_meta])
 fill = urwid.Filler(full_board)
 loop = urwid.MainLoop(fill, palette, unhandled_input=update)
 loop.screen.set_terminal_properties(colors=256)
+
 
 #-------------------
 #refresh main screen
@@ -218,7 +222,7 @@ def refresh(_loop, _data):
                 next_piece = random.choice(list_of_pieces).arr #spawn a new piece
 
                 # reset variables
-                xax = 4
+                xax = 3
                 a = 0
             else:
                 a = a+1
@@ -229,11 +233,22 @@ def refresh(_loop, _data):
         if end_game == False:
             _loop.set_alarm_in(framerate, refresh)
         else:
-            cletris_core.update_highscore(score)
-            f = open("highscore.txt", "r")
-            content = f.read()
-            txt.set_text(f"game over\n:(\nHighscore:\n{content}")
+            raise urwid.ExitMainLoop()
+
+
 
 loop.set_alarm_in(framerate, refresh)
 
 loop.run()
+
+#test loop
+
+if not quit:
+    cletris_core.update_highscore(score)
+    f = open("highscore.txt", "r")
+    content = f.read()
+
+    txt_end = urwid.Text((f"game over\n:(\nHighscore:\n{content}"), align="center")
+    fill_lose = urwid.Filler(txt_end)
+    loop2 = urwid.MainLoop(fill_lose, palette, unhandled_input=update)
+    loop2.run()

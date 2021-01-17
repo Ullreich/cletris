@@ -123,10 +123,10 @@ class tetromino():
 
 
 class i_bar(tetromino):
-    arr = np.array([[0, 1, 0, 0],
-                    [0, 1, 0, 0],
-                    [0, 1, 0, 0],
-                    [0, 1, 0, 0]])
+    arr = np.array([[0, 0, 1, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 1, 0]])
 
 class t_bar(tetromino):
     arr = np.array([[0, 2, 0],
@@ -134,8 +134,10 @@ class t_bar(tetromino):
                     [0, 2, 0]])
 
 class o_bar(tetromino):
-    arr = np.array([[3, 3],
-                    [3, 3]])
+    arr = np.array([[0, 0, 0, 0],
+                    [0, 3, 3, 0],
+                    [0, 3, 3, 0],
+                    [0, 0, 0, 0]])
 
 class j_bar(tetromino):
     arr = np.array([[0, 4, 0],
