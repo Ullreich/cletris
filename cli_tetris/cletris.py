@@ -3,6 +3,8 @@ import numpy as np
 import cletris_core
 import time
 import random
+import os
+import sys
 
 #TODO
 """
@@ -76,6 +78,7 @@ piece = random.choice(list_of_pieces).arr
 pause_flag = False
 down_speed = False
 quit = False
+replay = False
 
 board = np.zeros((height, width), dtype="int")
 current = None
@@ -117,6 +120,19 @@ def update(key):    # key press handling
         pause_flag = not pause_flag
     if key == "down":
         down_speed = True
+
+def final_update(key):
+    global replay
+
+    if key in ("q", "Q"):
+        raise urwid.ExitMainLoop()
+    if key in ("r", "R"):
+        replay = True
+        raise urwid.ExitMainLoop()
+
+
+
+
 
 #--------
 #ui stuff
@@ -248,7 +264,10 @@ if not quit:
     f = open("highscore.txt", "r")
     content = f.read()
 
-    txt_end = urwid.Text((f"game over\n:(\nHighscore:\n{content}"), align="center")
+    txt_end = urwid.Text((f"game over\n:(\nHighscores:\n{content}\n(Q)uit\n(R)eplay"), align="center")
     fill_lose = urwid.Filler(txt_end)
-    loop2 = urwid.MainLoop(fill_lose, palette, unhandled_input=update)
+    loop2 = urwid.MainLoop(fill_lose, palette, unhandled_input=final_update)
     loop2.run()
+
+if replay:
+    os.system("python cletris.py")

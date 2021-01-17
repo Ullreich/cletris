@@ -103,10 +103,10 @@ def update_highscore(score):
         a.append(int(i))
 
     #add score to scoreboard
-    if (len(a) < 10):
+    if (len(a) < 5):
         a.append(score)
     elif score > min(a):
-        a[9] = score
+        a[4] = score
 
     a.sort(reverse = True)
 
@@ -130,7 +130,7 @@ class i_bar(tetromino):
 
 class t_bar(tetromino):
     arr = np.array([[0, 2, 0],
-                    [2, 2, 0],
+                    [0, 2, 2],
                     [0, 2, 0]])
 
 class o_bar(tetromino):
@@ -150,9 +150,9 @@ class l_bar(tetromino):
                     [0, 5, 5]])
 
 class z_bar(tetromino):
-    arr = np.array([[0, 6, 0],
-                    [6, 6, 0],
-                    [6, 0, 0]])
+    arr = np.array([[0, 0, 6],
+                    [0, 6, 6],
+                    [0, 6, 0]])
 
 class s_bar(tetromino):
     arr = np.array([[0, 7, 0],

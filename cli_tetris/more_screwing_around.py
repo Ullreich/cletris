@@ -1,36 +1,47 @@
 import urwid
 import numpy as np
-import time
+#import cletris_core
+
+rub = [["ferdi", 34],
+     ["ferdi", 4545],
+     ["rubus", 5]]
+
+def update_highscore(score):
+    #save('data.npy', data)
+    try:
+        hiscore = np.load("highscore.npy")
+    except:
+        open("highscore.npy", "x")
+
+    if len(highscore) <= 10:
+        highscore = np.concatenate((highscore, score))
+
+    np.save("highscore.npy", highscore)
+
 
 def exit_on_q(key):
     if key in ('q', 'Q'):
         raise urwid.ExitMainLoop()
 
+class QuestionBox(urwid.Filler):
+    def keypress(self, size, key):
+        if key != 'enter':
+            return super(QuestionBox, self).keypress(size, key)
+        self.original_widget = urwid.Text((
+            f"game over\n:(\nHighscore:\n{content}\n{edit.edit_text}"),
+            align = "center")
 
-palette = [
-    ('banner', 'black', 'light gray'),
-    ('streak', 'black', 'dark red'),
-    ('bg', 'black', 'dark blue')]
+#cletris_core.update_highscore(score)
+#f = open("highscore.txt", "r")
+#content = f.read()
 
-txt = urwid.Text("hallo")
-fill = urwid.Filler(txt)
-my_screen = urwid.raw_display.Screen()
-loop = urwid.MainLoop(fill, screen=my_screen)
+#for i in rub:
+update_highscore(rub[0])
 
 
-loop.start()
-loop.draw_screen()
-time.sleep(1)
-
-new_txt = urwid.Text("goodbye")
-try:
-    my_screen.clear()
-    fill = urwid.Filler(new_txt)
-    #loop(fill)
-    loop.draw_screen()
-except:
-    print("cock")
-    pass
-time.sleep(1)
-
-loop.stop()
+"""
+edit = urwid.Edit(f"congratulations, please enter name\n")
+fill = QuestionBox(edit)
+loop = urwid.MainLoop(fill, unhandled_input=exit_on_q)
+loop.run()
+"""
