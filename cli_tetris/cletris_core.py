@@ -10,11 +10,8 @@ board[height-1, 0:width] = 9
 
 def collision(board, draw):
     for idx, i in np.ndenumerate(draw):
-        try:
-            if (i != 0) and (board[idx] != 0):
-                return True
-        except:
-            pass
+        if (i != 0) and (board[idx] != 0):
+            return True
     return False
 
 def clear_line(r):
@@ -92,6 +89,32 @@ def find_first_nonzero_right(tet):
 def find_first_nonzero_down(tet):
     return find_first_nonzero_right(np.rot90(tet))
 
+def update_highscore(score):
+    # open the file. make it if it doesn't exist
+    try:
+        open("highscore.txt", "x")
+    except:
+        pass
+    f = open("highscore.txt", "r")
+
+    # turn file into list
+    a = list()
+    for i in f:
+        a.append(int(i))
+
+    #add score to scoreboard
+    if (len(a) < 10):
+        a.append(score)
+    elif score > min(a):
+        a[9] = score
+
+    a.sort(reverse = True)
+
+    #write scores
+    f = open("highscore.txt", "w")
+    for i in a:
+        f.write(f"{i}\n")
+    f.close()
 
 
 class tetromino():
@@ -100,10 +123,10 @@ class tetromino():
 
 
 class i_bar(tetromino):
-    arr = np.array([[0, 0, 1, 0],
-                    [0, 0, 1, 0],
-                    [0, 0, 1, 0],
-                    [0, 0, 1, 0]])
+    arr = np.array([[0, 1, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 1, 0, 0]])
 
 class t_bar(tetromino):
     arr = np.array([[0, 2, 0],

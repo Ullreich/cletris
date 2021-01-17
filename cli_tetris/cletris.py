@@ -229,7 +229,10 @@ def refresh(_loop, _data):
         if end_game == False:
             _loop.set_alarm_in(framerate, refresh)
         else:
-            txt.set_text(f"game over\n:(")
+            cletris_core.update_highscore(score)
+            f = open("highscore.txt", "r")
+            content = f.read()
+            txt.set_text(f"game over\n:(\nHighscore:\n{content}")
 
 loop.set_alarm_in(framerate, refresh)
 
