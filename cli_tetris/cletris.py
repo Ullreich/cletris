@@ -1,5 +1,5 @@
-import urwid
-import numpy as np
+import urwid        #dependency
+import numpy as np  #dependency
 import cletris_core
 import time
 import random
@@ -12,21 +12,27 @@ implement line delete   [x]
 implement topout        [x]
 implement pause         [x]
 implement speed drop    [x]
-improve rotation        [ ]
+improve rotation        [x]
 research boxes          [x]
-add nice kill screen    [ ]
+add nice kill screen    [x]
     and reset option
 implement preview       [x]
 implement score         [x]
 implement line count    [x]
     and speed up
-implement high score    [ ]
+implement high score    [x]
     table
 add music?              [ ]
 pretty line deletion    [x]
 clean up global with    [ ]
     classes?
 update Colors           [ ]
+update scoring          [ ]
+reverse ui colors if bg [ ]
+    is black
+write readme            [ ]
+fair use thing          [ ]
+
 
 clean up code
     4 important parts
@@ -65,7 +71,7 @@ palette = [
 #variables
 a = 0
 xax = 3
-speed = 0.5#0.7
+speed = 1#0.7
 level = 1
 framerate = 0.001
 height = 17
@@ -189,11 +195,19 @@ def refresh(_loop, _data):
         #clear lines, increment score and line number, sleep on cleared line
         board, how_many = cletris_core.clear_line(board)
         if how_many != 0:
-            time.sleep(speed*2)
+            time.sleep(min(speed*2, 0.8))
             if lines >= 20*level:
                 level = level + 1
-                speed = speed* 2/3
-            score = score + (how_many**2)*100*level
+                speed = speed* 4/5
+            #scoring
+            if how_many==1:
+                score = score + 40*(level+1)
+            elif how_many==2:
+                score = score + 100*(level+1)
+            elif how_many==3:
+                score = score + 300*(level+1)
+            elif how_many==4:
+                score = score + 1200*(level+1)
             lines = lines+how_many
 
         txt_meta.set_text(f"Score:\n{score}\nLines:\n{lines}\nLevel:\n{level}")
@@ -264,7 +278,7 @@ if not quit:
     f = open("highscore.txt", "r")
     content = f.read()
 
-    txt_end = urwid.Text((f"game over\n:(\nHighscores:\n{content}\n(Q)uit\n(R)eplay"), align="center")
+    txt_end = urwid.Text((f"game over\n:(\nYou scored {score} points!\nHighscores:\n{content}\n(Q)uit\n(R)eplay"), align="center")
     fill_lose = urwid.Filler(txt_end)
     loop2 = urwid.MainLoop(fill_lose, palette, unhandled_input=final_update)
     loop2.run()

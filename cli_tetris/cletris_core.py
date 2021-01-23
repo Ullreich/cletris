@@ -35,29 +35,28 @@ def color_board(tmp, width, color_black = False):
     #color array
     for idx, i in np.ndenumerate(tmp):
         if i == 1:
-            colored_array.append(("l_blue", f" {i}"))
+            colored_array.append(("l_blue", f"  ")) #used to be f" {i}"
         elif i == 2:
-            colored_array.append(("purple", f" {i}"))
+            colored_array.append(("purple", f"  "))
         elif i == 3:
-            colored_array.append(("yellow", f" {i}"))
+            colored_array.append(("yellow", f"  "))
         elif i == 4:
-            colored_array.append(("blue", f" {i}"))
+            colored_array.append(("blue", f"  "))
         elif i == 5:
-            colored_array.append(("orange", f" {i}"))
+            colored_array.append(("orange", f"  "))
         elif i == 6:
-            colored_array.append(("red", f" {i}"))
+            colored_array.append(("red", f"  "))
         elif i == 7:
-            colored_array.append(("green", f" {i}"))
+            colored_array.append(("green", f"  "))
         elif i == 9:
-            colored_array.append(("black", f" {i}"))
+            colored_array.append(("black", f"  "))
         elif i == 0 and idx[1]%2==0:
-            colored_array.append(("lavender", f" {i}"))
+            colored_array.append(("lavender", f"  "))
         else:
-            colored_array.append(("snow", f" {i}"))
+            colored_array.append(("snow", f"  "))
 
         if idx[1] == width-1:
             colored_array.append(f"\n")
-
     return colored_array
 
 
