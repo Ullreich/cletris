@@ -3,6 +3,8 @@ a cli clone of the classic game Tetris written in python.<br>
 Written in python 3.8, no guarantees it works in earlier versions. Will not
 work in python 2.
 
+![an example image of cletris](/example_image.png "i am not good at tetris :(")
+
 ## dependencies:
 * numpy  (tested with version 1.19.2)
 * urwid  (tested with version 2.1.2)
