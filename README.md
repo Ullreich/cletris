@@ -10,7 +10,7 @@ work in python 2.
 * urwid  (tested with version 2.1.2)
 
 ## install:
-1. make sure the dependencies are installed (`pip install urwid numpy`)
+1. make sure the dependencies are installed (`pip3 install urwid numpy`)
 2. clone this Repo (`git clone https://github.com/Ullreich/cletris`)
 3. `cd` into the directory and run script with `python3 cletris.py`
 
