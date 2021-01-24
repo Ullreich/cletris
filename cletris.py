@@ -286,4 +286,4 @@ if not quit:
     loop2.run()
 
 if replay:
-    os.system("python cletris.py")
+    os.system("cletris.py")
