@@ -9,6 +9,16 @@ work in python 2.
 * numpy  (tested with version 1.19.2)
 * urwid  (tested with version 2.1.2)
 
+## install:
+1. make sure the dependencies are installed (`pip install urwid numpy`)
+2. clone this Repo (`git clone https://github.com/Ullreich/cletris`)
+3. `cd` into the directory and run script with `python3 cletris.py`
+
+<b>if you want to be able to execute cletris from anywhere:</b>
+4. add this directory to your PATH in your `.bashrc` (or `.bash_profile` on mac)
+5. set the file to be executable `chmod +x cletris.py`
+6. run script with `cletris.py`
+
 ## controls:
 * Q/q: quit
 * R/r: rotate right

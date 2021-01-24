@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import urwid        #dependency
 import numpy as np  #dependency
 import cletris_core
