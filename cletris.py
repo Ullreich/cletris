@@ -59,6 +59,7 @@ list_of_pieces = [cletris_core.i_bar(),
 # TODO: fix palette
 palette = [
     ('l_blue', '', '', '', '#0df', '#0df'),
+    #('l_blue', '', '', '', 'black', 'black'),
     ("white", "", "", "", "#000", "#fff"),
     ("black", "", "", "", "#000", "#000"),
     ("yellow", "", "", "", "#ff0", "#ff0"),
@@ -161,7 +162,6 @@ fill = urwid.Filler(full_board)
 loop = urwid.MainLoop(fill, palette, unhandled_input=update)
 loop.screen.set_terminal_properties(colors=256)
 
-
 #-------------------
 #refresh main screen
 #-------------------
@@ -237,7 +237,7 @@ def refresh(_loop, _data):
 
         # increment y axis
         if down_speed:
-            inc_speed = 0.01
+            inc_speed = 0.05
             down_speed = False
         else:
             inc_speed = speed
@@ -286,4 +286,7 @@ if not quit:
     loop2.run()
 
 if replay:
-    os.system("cletris.py")
+    #try:
+    #    os.system("cletris.py")
+    #except:
+    os.system("python cletris.py")
